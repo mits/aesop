@@ -1,0 +1,7 @@
+aesop
+
+aesop is yet another aes implementation, written by Dimitris Tsitsipis.
+Its initial purpose is to be used for testing in WSN applications, 
+but, who knows, maybe it will find other applications too.
+At this time, it includes just an implementation of the plain AES-128 block cipher,
+but more will probably be added.
