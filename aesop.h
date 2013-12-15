@@ -22,8 +22,24 @@
 
 #include <stdint.h>
 
-void aes_key_setup_128(uint8_t *key, uint32_t *w);
-aes_128_encrypt(uint8_t *plain, uint8_t *ciphertext, uint32_t *w);
+#define __AES_Nk_128 4
+#define __AES_Nr_128 10
+#define __AES_Nb 4
+
+#define AES_BLOCK_SIZE 16
+#define AES_KEY_SIZE_128 16
+
+struct aes_context_128
+{
+	uint8_t key[AES_KEY_SIZE_128];
+	uint32_t keyschedule[__AES_Nb * (__AES_Nr_128 + 1)];
+};
+
+//void aes_key_setup_128(uint8_t *key, uint32_t *w);
+//void aes_128_encrypt(uint8_t *plain, uint8_t *ciphertext, uint32_t *w);
+void aes_key_setup_128(uint8_t *key, struct aes_context_128 *ctx);
+void aes_128_encrypt(uint8_t *plain, uint8_t *ciphertext,
+		struct aes_context_128 *ctx);
 
 
 #endif /* AES_H_ */

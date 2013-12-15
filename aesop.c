@@ -19,6 +19,10 @@
 
 #include <stdint.h>
 
+#include <string.h>
+
+#include "aesop.h"
+
 #define Nk_128 4
 #define Nr_128 10
 #define Nb 4
@@ -80,21 +84,22 @@ void print_state(word_u *state)
 	DPRINT("\n");
 }
 
-void aes_key_setup_128(uint8_t *key, uint32_t *w)
+void aes_key_setup_128(uint8_t *key, struct aes_context_128 *ctx)
 {
 	int i;
 	uint32_t temp;
+	memcpy(ctx->key, key, AES_KEY_SIZE_128);
 /*	for (i = 0; i < Nk_128; i++) {
 		w[i] = (key[4*i] << 24) + (key[4*i+1] << 16) +(key[4*i+2] << 8) + key[4*i+3];
 	}
 */
-	w[0] = (key[0] << 24)  + (key[1] << 16)  + (key[2] << 8)  + key[3];
-	w[1] = (key[4] << 24)  + (key[5] << 16)  + (key[6] << 8)  + key[7];
-	w[2] = (key[8] << 24)  + (key[9] << 16)  + (key[10] << 8) + key[11];
-	w[3] = (key[12] << 24) + (key[13] << 16) + (key[14] << 8) + key[15];
+	ctx->keyschedule[0] = (key[0] << 24)  + (key[1] << 16)  + (key[2] << 8)  + key[3];
+	ctx->keyschedule[1] = (key[4] << 24)  + (key[5] << 16)  + (key[6] << 8)  + key[7];
+	ctx->keyschedule[2] = (key[8] << 24)  + (key[9] << 16)  + (key[10] << 8) + key[11];
+	ctx->keyschedule[3] = (key[12] << 24) + (key[13] << 16) + (key[14] << 8) + key[15];
 	for (i = Nk_128; i < Nb * (Nr_128 + 1); i++) {
 		DPRINT("i: %d\n", i);
-		temp = w[i-1];
+		temp = ctx->keyschedule[i-1];
 		if (i % Nk_128 == 0) {
 			DPRINT("rot: %x\n", rot_word(temp));
 			DPRINT("subword: %x\n", sub_word(rot_word(temp)));
@@ -102,15 +107,18 @@ void aes_key_setup_128(uint8_t *key, uint32_t *w)
 			temp = sub_word(rot_word(temp)) ^ Rcon[i/Nk_128];
 			DPRINT("after xor: %x\n", temp);
 		}
-		w[i] = w[i-Nk_128] ^ temp;
+		ctx->keyschedule[i] = ctx->keyschedule[i-Nk_128] ^ temp;
 		DPRINT("final: %x\n",w[i]);
 	}
 }
 
-void aes_128_encrypt(uint8_t *plain, uint8_t *ciphertext, uint32_t *w)
+void aes_128_encrypt(uint8_t *plain, uint8_t *ciphertext,
+		struct aes_context_128 *ctx)
 {
 	int i;
+	uint32_t *w;
 	word_u state[Nb],state2[Nb];
+	w = ctx->keyschedule;
 	//initial state and add_round_key in one
 	state[0].word = pack_bytes(plain);
 	state[0].word = w[0]^pack_bytes(plain);

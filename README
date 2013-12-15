@@ -3,5 +3,7 @@ aesop
 aesop is yet another aes implementation, written by Dimitris Tsitsipis.
 Its initial purpose is to be used for testing in WSN applications, 
 but, who knows, maybe it will find other applications too.
-At this time, it includes just an implementation of the plain AES-128 block cipher,
-but more will probably be added.
+At this time, it includes just an implementation of the plain AES-128 block cipher
+as well as (kinda) cipher agnostic implementations of the CTR mode the OMAC hash function
+and the EAX authenticated encryption mode.
+More may be added in the future.
